@@ -1,0 +1,51 @@
+from app.modules.products.exceptions import ProductNotFound
+from app.modules.products.models import Product
+from app.modules.products.repository import ProductRepository
+from app.modules.products.schema import ProductCreate, ProductUpdate
+
+
+class ProductService:
+    def __init__(self, repository: ProductRepository) -> None:
+        self._repository = repository
+
+    @property
+    def repository(self) -> ProductRepository:
+        """The repository property."""
+        if not self._repository:
+            raise ValueError("Repository not set")
+        return self._repository
+
+    async def create_product(self, product: ProductCreate) -> Product:
+        data = {
+            "number": product.number,
+            "design": product.design,
+            "price": product.price,
+            "quantity": product.quantity,
+        }
+
+        return await self.repository.insert(data)
+
+    async def get_all(self) -> list[Product]:
+        return await self.repository.get_all()
+
+    async def get_one(self, number: str) -> Product:
+        product = await self.repository.get_one(number)
+        if not product:
+            raise ProductNotFound(number)
+        return product
+
+    async def delete_product(self, number: str) -> Product:
+        product = await self.repository.get_one(number)
+        if not product:
+            raise ProductNotFound(number)
+
+        return await self.repository.delete(number)
+
+    async def update_product(self, number: str, product: ProductUpdate) -> Product:
+        existing = await self.repository.get_one(number)
+        if not existing:
+            raise ProductNotFound(number)
+
+        updates = product.dict(exclude_unset=True)
+
+        return await self.repository.update(number, **updates)
