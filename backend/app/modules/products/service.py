@@ -26,3 +26,10 @@ class ProductService:
 
     async def get_all(self) -> list[Product]:
         return await self.repository.get_all()
+
+    async def delete_product(self, number: str) -> Product:
+        product = await self.repository.get_one(number)
+        if not product:
+            raise ValueError("Produit introuvable")
+
+        return await self.repository.delete(number)
