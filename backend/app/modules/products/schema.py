@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -14,3 +16,9 @@ class ProductCreate(ProductBase):
 
 class ProductOut(ProductBase):
     pass
+
+
+class ProductUpdate:
+    design: Optional[str] = None
+    price: Optional[int] = None
+    quantity: Optional[int] = None
