@@ -1,7 +1,7 @@
 from app.modules.products.exceptions import ProductNotFound
 from app.modules.products.models import Product
 from app.modules.products.repository import ProductRepository
-from app.modules.products.schema import ProductCreate
+from app.modules.products.schema import ProductCreate, ProductUpdate
 
 
 class ProductService:
@@ -40,3 +40,12 @@ class ProductService:
             raise ProductNotFound(number)
 
         return await self.repository.delete(number)
+
+    async def update_product(self, number: str, product: ProductUpdate) -> Product:
+        existing = await self.repository.get_one(number)
+        if not existing:
+            raise ProductNotFound(number)
+
+        updates = product.dict(exclude_unset=True)
+
+        return await self.repository.update(number, **updates)
