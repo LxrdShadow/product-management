@@ -14,4 +14,4 @@ async def create_product(
     try:
         return await service.create_product(product)
     except Exception as e:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, {"error": str(e)})
+        raise HTTPException(status.HTTP_500_BAD_REQUEST, {"error": str(e)})
