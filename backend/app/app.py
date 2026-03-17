@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
+from app.modules.products.routes import router as product_router
 from core.settings import get_settings
 from db import init_db
 
@@ -19,3 +21,5 @@ app = FastAPI(
     version=settings.VERSION,
     lifespan=lifespan,
 )
+
+app.include_router(product_router)
