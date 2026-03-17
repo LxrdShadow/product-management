@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.modules.products.dependencies import get_product_service
 from app.modules.products.schema import ProductCreate, ProductOut
@@ -14,7 +14,7 @@ async def create_product(
     try:
         return await service.create_product(product)
     except Exception as e:
-        raise HTTPException(status.HTTP_500_BAD_REQUEST, {"error": str(e)})
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, {"error": str(e)})
 
 
 @router.get("/", response_model=list[ProductOut])
@@ -22,4 +22,14 @@ async def get_all_products(service: ProductService = Depends(get_product_service
     try:
         return await service.get_all()
     except Exception as e:
-        raise HTTPException(status.HTTP_500_BAD_REQUEST, {"error": str(e)})
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, {"error": str(e)})
+
+
+@router.delete("/:number", response_model=ProductOut)
+async def delete_product(
+    number: str = Query(...), service: ProductService = Depends(get_product_service)
+):
+    try:
+        return await service.delete_product(number)
+    except Exception as e:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, {"error": str(e)})
