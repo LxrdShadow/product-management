@@ -20,6 +20,12 @@ class ProductRepository:
         result = await self.session.execute(stmt)
         return result.scalars()
 
+    async def get_one(self, number: str) -> Product:
+        """Get one products in the database"""
+        stmt = select(Product).where(Product.number == number)
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
     async def delete(self, number: str) -> Product:
         """Delete a product from the database"""
         stmt = delete(Product).where(Product.number == number).returning(Product)
