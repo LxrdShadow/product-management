@@ -5,6 +5,9 @@ from db.base import Base
 
 
 class Product(Base):
+
+    __tablename__ = "products"
+
     number: Mapped[str] = mapped_column(String(20), primary_key=True)
     design: Mapped[str] = mapped_column(String(30), index=True)
     price: Mapped[int] = mapped_column(Integer)
