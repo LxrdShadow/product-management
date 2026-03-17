@@ -18,7 +18,7 @@ class ProductOut(ProductBase):
     pass
 
 
-class ProductUpdate:
+class ProductUpdate(BaseModel):
     design: Optional[str] = None
     price: Optional[int] = None
     quantity: Optional[int] = None
