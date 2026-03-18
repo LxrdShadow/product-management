@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
-from fastapi.params import Param
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.modules.products.dependencies import get_product_service
 from app.modules.products.exceptions import ProductNotFound
