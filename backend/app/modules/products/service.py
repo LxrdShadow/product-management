@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from fastapi import UploadFile
 
-from app.modules.products.exceptions import ProductNotFound
+from app.modules.products.exceptions import ProductAlreadyExists, ProductNotFound
 from app.modules.products.models import Product
 from app.modules.products.repository import ProductRepository
 from app.modules.products.schema import ProductCreate, ProductUpdate
@@ -27,6 +27,10 @@ class ProductService:
     async def create_product(
         self, product: ProductCreate, picture: Optional[UploadFile]
     ) -> Product:
+        existing = await self.repository.get_one(product.number)
+        if existing:
+            raise ProductAlreadyExists(product.number)
+
         data = {
             "number": product.number,
             "design": product.design,
@@ -63,7 +67,9 @@ class ProductService:
 
         return await self.repository.delete(number)
 
-    async def update_product(self, number: str, product: ProductUpdate, picture: Optional[UploadFile]) -> Product:
+    async def update_product(
+        self, number: str, product: ProductUpdate, picture: Optional[UploadFile]
+    ) -> Product:
         existing = await self.repository.get_one(number)
         if not existing:
             raise ProductNotFound(number)
