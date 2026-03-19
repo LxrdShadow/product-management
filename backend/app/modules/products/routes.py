@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Optional
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
 from app.modules.products.dependencies import get_product_service
 from app.modules.products.exceptions import ProductNotFound
@@ -10,10 +12,18 @@ router = APIRouter(tags=["Products"], prefix="/products")
 
 @router.post("/", response_model=ProductOut)
 async def create_product(
-    product: ProductCreate, service: ProductService = Depends(get_product_service)
+    number: str = Form(...),
+    design: str = Form(...),
+    price: int = Form(...),
+    quantity: int = Form(...),
+    picture: Optional[UploadFile] = File(None),
+    service: ProductService = Depends(get_product_service),
 ):
     try:
-        return await service.create_product(product)
+        product = ProductCreate(
+            number=number, design=design, price=price, quantity=quantity
+        )
+        return await service.create_product(product, picture)
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, {"error": str(e)})
 
@@ -50,14 +60,18 @@ async def delete_product(
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, {"error": str(e)})
 
 
-@router.patch("/{number}", response_model=ProductOut)
+@router.put("/{number}", response_model=ProductOut)
 async def update_product(
     number: str,
-    product: ProductUpdate,
+    design: str = Form(...),
+    price: int = Form(...),
+    quantity: int = Form(...),
+    picture: Optional[UploadFile] = File(None),
     service: ProductService = Depends(get_product_service),
 ):
     try:
-        return await service.update_product(number, product)
+        product = ProductUpdate(design=design, price=price, quantity=quantity)
+        return await service.update_product(number, product, picture)
     except ProductNotFound as e:
         raise HTTPException(status.HTTP_404_NOT_FOUND, {"error": e.message})
     except Exception as e:
