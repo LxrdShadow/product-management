@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from app.modules.products.routes import router as product_router
 from core.settings import get_settings
@@ -22,4 +23,5 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_PATH, check_dir=False), name="uploads")
 app.include_router(product_router)
