@@ -10,6 +10,8 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str
 
+    UPLOAD_PATH: str = "./data"
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
