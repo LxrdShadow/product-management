@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.modules.products.repository import ProductRepository
 from app.modules.products.service import ProductService
 from db.session import get_async_session
+from upload.cloudinary_storage import CloudinaryStorage
 from upload.local_storage import LocalStorage
 from upload.storage import Storage
 
@@ -18,8 +19,12 @@ async def get_local_storage() -> Storage:
     return LocalStorage()
 
 
+async def get_cloudinary_storage() -> Storage:
+    return CloudinaryStorage()
+
+
 async def get_product_service(
     repo: ProductRepository = Depends(get_product_repository),
-    storage: Storage = Depends(get_local_storage),
+    storage: Storage = Depends(get_cloudinary_storage),
 ) -> ProductService:
     return ProductService(repo)
