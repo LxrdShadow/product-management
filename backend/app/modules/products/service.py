@@ -1,4 +1,4 @@
-from pathlib import Path
+import os
 from typing import Optional
 from uuid import uuid4
 
@@ -9,13 +9,17 @@ from app.modules.products.models import Product
 from app.modules.products.repository import ProductRepository
 from app.modules.products.schema import ProductCreate, ProductUpdate
 from core.settings import get_settings
+from upload.storage import Storage
 
 settings = get_settings()
 
 
 class ProductService:
-    def __init__(self, repository: ProductRepository) -> None:
+    def __init__(
+        self, repository: ProductRepository, storage: Optional[Storage] = None
+    ) -> None:
         self._repository = repository
+        self._storage = storage
 
     @property
     def repository(self) -> ProductRepository:
@@ -23,6 +27,13 @@ class ProductService:
         if not self._repository:
             raise ValueError("Repository not set")
         return self._repository
+
+    @property
+    def storage(self) -> Storage:
+        """The storage property."""
+        if not self._storage:
+            raise ValueError("Storage not set")
+        return self._storage
 
     async def create_product(
         self, product: ProductCreate, picture: Optional[UploadFile]
@@ -40,13 +51,11 @@ class ProductService:
 
         if picture:
             filename = f"{uuid4()}_{picture.filename}"
-            save_path = Path(settings.UPLOAD_PATH) / filename
+            save_path = os.path.join(settings.UPLOAD_PATH, filename)
 
-            save_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(save_path, "wb") as file:
-                file.write(await picture.read())
+            id = self.storage.save(save_path, await picture.read())
 
-            picture_path = f"/uploads/{filename}"
+            picture_path = f"/uploads/{id}"
             data["picture"] = picture_path
 
         return await self.repository.insert(data)
@@ -77,13 +86,11 @@ class ProductService:
         updates = product.dict(exclude_unset=True)
         if picture:
             filename = f"{uuid4()}_{picture.filename}"
-            save_path = Path(settings.UPLOAD_PATH) / filename
+            save_path = os.path.join(settings.UPLOAD_PATH, filename)
 
-            save_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(save_path, "wb") as file:
-                file.write(await picture.read())
+            id = self.storage.save(save_path, await picture.read())
 
-            picture_path = f"/uploads/{filename}"
+            picture_path = f"/uploads/{id}"
             updates["picture"] = picture_path
 
         return await self.repository.update(number, **updates)
