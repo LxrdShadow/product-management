@@ -1,4 +1,4 @@
-from pathlib import Path
+import os
 from typing import Optional
 from uuid import uuid4
 
@@ -51,9 +51,9 @@ class ProductService:
 
         if picture:
             filename = f"{uuid4()}_{picture.filename}"
-            save_path = Path(settings.UPLOAD_PATH) / filename
+            save_path = os.path.join(settings.UPLOAD_PATH, filename)
 
-            id = self.storage.save(save_path, picture.read())
+            id = self.storage.save(save_path, await picture.read())
 
             picture_path = f"/uploads/{id}"
             data["picture"] = picture_path
@@ -86,9 +86,9 @@ class ProductService:
         updates = product.dict(exclude_unset=True)
         if picture:
             filename = f"{uuid4()}_{picture.filename}"
-            save_path = Path(settings.UPLOAD_PATH) / filename
+            save_path = os.path.join(settings.UPLOAD_PATH, filename)
 
-            id = self.storage.save(save_path, picture.read())
+            id = self.storage.save(save_path, await picture.read())
 
             picture_path = f"/uploads/{id}"
             updates["picture"] = picture_path
