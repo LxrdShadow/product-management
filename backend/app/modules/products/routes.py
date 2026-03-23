@@ -74,12 +74,12 @@ async def delete_product(
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, {"error": str(e)})
 
 
-@router.put("/{number}", response_model=ProductOut)
+@router.patch("/{number}", response_model=ProductOut)
 async def update_product(
     number: str,
-    design: str = Form(...),
-    price: int = Form(...),
-    quantity: int = Form(...),
+    design: Optional[str] = Form(None),
+    price: Optional[int] = Form(None),
+    quantity: Optional[int] = Form(None),
     picture: Optional[UploadFile] = File(None),
     service: ProductService = Depends(get_product_service),
 ):
