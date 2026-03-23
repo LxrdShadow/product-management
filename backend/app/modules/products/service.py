@@ -83,7 +83,7 @@ class ProductService:
         if not existing:
             raise ProductNotFound(number)
 
-        updates = product.dict(exclude_unset=True)
+        updates = product.dict(exclude_unset=True, exclude_none=True)
         if picture:
             filename = f"{uuid4()}_{picture.filename}"
             save_path = os.path.join(settings.UPLOAD_PATH, filename)
